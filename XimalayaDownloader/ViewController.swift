@@ -10,18 +10,26 @@ import Cocoa
 import Alamofire
 import WebKit
 
-class ViewController: NSViewController {
+extension String {
+    func replace(target: String, withString: String) -> String {
+        return self.stringByReplacingOccurrencesOfString(target, withString: withString, options: NSStringCompareOptions.LiteralSearch, range: nil)
+    }
+}
+
+class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate {
 
     @IBOutlet weak var albumURL: NSTextField!
     @IBOutlet weak var labAlbumName: NSTextField!
     @IBOutlet weak var labCurrentSoundName: NSTextField!
-    @IBOutlet var wvWebView: WebView!
+    @IBOutlet weak var wvWebView: WebView!
+    @IBOutlet weak var tabSoundList: NSTableView!
     
     var parser:HTMLParser?
     var parserBodyNode:HTMLNode?
     var albumName:String = ""
     var currentSoundName:String = ""
     var didFinish:Bool = false
+    var soundList:[XDSound] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,6 +39,9 @@ class ViewController: NSViewController {
         
         self.wvWebView.hidden = true
         self.wvWebView.frameLoadDelegate = self
+        
+        self.tabSoundList.setDelegate(self)
+        self.tabSoundList.setDataSource(self)
     }
 
     @IBAction func textDidChange(sender: NSTextField) {
@@ -42,12 +53,31 @@ class ViewController: NSViewController {
         }
     }
     
+    func numberOfRowsInTableView(tableView: NSTableView) -> Int {
+        return self.soundList.count
+    }
+    
+    func tableView(tableView: NSTableView, objectValueForTableColumn tableColumn: NSTableColumn?, row: Int) -> AnyObject? {
+        var result = ""
+        var xdSound = self.soundList[row]
+        var columnIdentifier = tableColumn?.identifier
+        if columnIdentifier == "title" {
+            result = xdSound.title
+        }
+        println(columnIdentifier)
+        println(result)
+        return result
+    }
+    
     override func webView(sender: WebView!, didFinishLoadForFrame frame: WebFrame!) {
         if self.didFinish == false {
             self.didFinish = true
             var htmlSource:String = self.wvWebView.stringByEvaluatingJavaScriptFromString("document.documentElement.outerHTML")
-            
-            println(htmlSource)
+            htmlSource = htmlSource.replace("<article>", withString: "<div>")
+            htmlSource = htmlSource.replace("</article>", withString: "</div>")
+            htmlSource = htmlSource.replace("<canvas ", withString: "<div ")
+            htmlSource = htmlSource.replace("</canvas>", withString: "</div>")
+            //println(htmlSource)
             // parse html
             var err:NSError?
             self.parser = HTMLParser(html: htmlSource, encoding: NSUTF8StringEncoding, error: &err)
@@ -57,8 +87,22 @@ class ViewController: NSViewController {
             }
             self.parserBodyNode = self.parser?.body
             // set album title
-            println(self.parserBodyNode?.findChildTagAttr("div", attrName: "class", attrValue: "detailContent_title")?.contents)
-
+            if let xpath:[HTMLNode] = self.parserBodyNode?.xpath("//div[@class='detailContent_title']/h1") {
+                for node in xpath {
+                    self.labAlbumName.stringValue = node.contents
+                }
+            }
+            // get sound list
+            if let soundPath:[HTMLNode] = self.parserBodyNode?.xpath("//div[@class='album_soundlist ']//li") {
+                for node in soundPath {
+                    var soundTitle:HTMLNode = node.findChildTagAttr("a", attrName: "class", attrValue: "title")!
+                    var xdSound = XDSound()
+                    xdSound.id = node.getAttributeNamed("sound_id")
+                    xdSound.title = soundTitle.contents
+                    soundList.append(xdSound)
+                }
+            }
+            tabSoundList.reloadData()
         }
         
     }
@@ -69,9 +113,4 @@ class ViewController: NSViewController {
         }
     }
     
-    extension String {
-        func replace(target: String, withString: String) -> String {
-            return self.stringByReplacingOccurrencesOfString(target, withString: withString, options: NSStringCompareOptions.LiteralSearch, range: nil)
-        }
-    }
 }

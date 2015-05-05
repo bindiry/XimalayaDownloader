@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1129B5151AF8DDE0000924F8 /* XDSound.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1129B5141AF8DDE0000924F8 /* XDSound.swift */; };
 		119E07D41AF4571300705A09 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 119E07D31AF4571300705A09 /* AppDelegate.swift */; };
 		119E07D61AF4571300705A09 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 119E07D51AF4571300705A09 /* ViewController.swift */; };
 		119E07D81AF4571300705A09 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 119E07D71AF4571300705A09 /* Images.xcassets */; };
@@ -81,6 +82,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1129B5141AF8DDE0000924F8 /* XDSound.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XDSound.swift; sourceTree = "<group>"; };
 		119E07CE1AF4571300705A09 /* XimalayaDownloader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XimalayaDownloader.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		119E07D21AF4571300705A09 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		119E07D31AF4571300705A09 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -153,6 +155,7 @@
 				119E07D11AF4571300705A09 /* Supporting Files */,
 				119E08031AF7C26000705A09 /* SwiftObjC-Bridging-Header.h */,
 				119E08371AF7CF8300705A09 /* Regex.swift */,
+				1129B5141AF8DDE0000924F8 /* XDSound.swift */,
 			);
 			path = XimalayaDownloader;
 			sourceTree = "<group>";
@@ -334,6 +337,7 @@
 				119E07D61AF4571300705A09 /* ViewController.swift in Sources */,
 				119E08381AF7CF8300705A09 /* Regex.swift in Sources */,
 				119E07FB1AF7AEEC00705A09 /* HTMLParser.swift in Sources */,
+				1129B5151AF8DDE0000924F8 /* XDSound.swift in Sources */,
 				119E07D41AF4571300705A09 /* AppDelegate.swift in Sources */,
 				119E07FA1AF7AEEC00705A09 /* HTMLNode.swift in Sources */,
 			);
@@ -538,6 +542,7 @@
 				119E07EC1AF4571300705A09 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		119E07ED1AF4571300705A09 /* Build configuration list for PBXNativeTarget "XimalayaDownloaderTests" */ = {
 			isa = XCConfigurationList;
@@ -546,6 +551,7 @@
 				119E07EF1AF4571300705A09 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
