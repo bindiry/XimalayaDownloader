@@ -2,6 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="7702" systemVersion="14D136" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" initialViewController="B8D-0N-5wS">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7702"/>
+        <plugIn identifier="com.apple.WebKitIBPlugin" version="7702"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -668,7 +669,7 @@
         <!--View Controller-->
         <scene sceneID="VRl-zl-Jz0">
             <objects>
-                <viewController id="85t-WU-i38" sceneMemberID="viewController">
+                <viewController id="85t-WU-i38" customClass="ViewController" customModule="XimalayaDownloader" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="3fD-rV-kYi">
                         <rect key="frame" x="0.0" y="0.0" width="519" height="326"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -681,6 +682,9 @@
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
+                                <connections>
+                                    <action selector="textDidChange:" target="85t-WU-i38" id="tlM-Af-hhp"/>
+                                </connections>
                             </textField>
                             <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="LKh-hL-DLe">
                                 <rect key="frame" x="29" y="51" width="460" height="200"/>
@@ -836,6 +840,9 @@
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" size="13" name="STHeitiSC-Light"/>
                                 </buttonCell>
+                                <connections>
+                                    <segue destination="eTy-Wc-4CN" kind="sheet" id="YaK-3d-KVs"/>
+                                </connections>
                             </button>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Oug-mG-mMs">
                                 <rect key="frame" x="29" y="259" width="56" height="17"/>
@@ -873,12 +880,24 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <webView id="xDH-6H-Df4">
+                                <rect key="frame" x="221" y="21" width="135" height="20"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12"/>
+                            </webView>
                         </subviews>
                     </view>
+                    <connections>
+                        <outlet property="albumURL" destination="ah2-Fm-RtE" id="N1P-VS-o1g"/>
+                        <outlet property="labAlbumName" destination="dLe-fS-ORd" id="yLk-p3-Tfr"/>
+                        <outlet property="labCurrentSoundName" destination="jcr-2t-fdN" id="aaf-yc-hla"/>
+                        <outlet property="wvWebView" destination="xDH-6H-Df4" id="huk-ch-yME"/>
+                        <outlet property="wvWebview" destination="xDH-6H-Df4" id="JU1-V0-xYU"/>
+                    </connections>
                 </viewController>
                 <customObject id="hEv-Cr-J4K" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="75.5" y="701"/>
+            <point key="canvasLocation" x="75" y="701"/>
         </scene>
         <!--View Controller-->
         <scene sceneID="D4J-RD-S59">
@@ -904,6 +923,9 @@
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" size="13" name="STHeitiSC-Light"/>
                                 </buttonCell>
+                                <connections>
+                                    <action selector="dismissController:" target="eTy-Wc-4CN" id="KdN-nK-ISr"/>
+                                </connections>
                             </button>
                         </subviews>
                     </view>
