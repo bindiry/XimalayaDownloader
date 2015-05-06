@@ -20,22 +20,21 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
 
     @IBOutlet weak var albumURL: NSTextField!
     @IBOutlet weak var labAlbumName: NSTextField!
-    @IBOutlet weak var labCurrentSoundName: NSTextField!
-    @IBOutlet weak var wvWebView: WebView!
+    @IBOutlet weak var labSoundCount: NSTextField!
     @IBOutlet weak var tabSoundList: NSTableView!
+    @IBOutlet weak var wvWebView: WebView!
     
     var parser:HTMLParser?
     var parserBodyNode:HTMLNode?
-    var albumName:String = ""
-    var currentSoundName:String = ""
     var didFinish:Bool = false
     var soundList:[XDSound] = []
+    var soundDic = Dictionary<String, XDSound>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.labAlbumName.stringValue = albumName
-        self.labCurrentSoundName.stringValue = currentSoundName
+        self.labAlbumName.stringValue = ""
+        self.labSoundCount.stringValue = ""
         
         self.wvWebView.hidden = true
         self.wvWebView.frameLoadDelegate = self
@@ -47,9 +46,16 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     @IBAction func textDidChange(sender: NSTextField) {
         var albumUrlValue = sender.stringValue + ".ajax"
         if var url = NSURL(string: albumUrlValue) {
+            self.didFinish = false
+            self.soundList = []
+            self.soundDic = [:]
+            self.tabSoundList.reloadData()
+            self.labAlbumName.stringValue = ""
+            self.labSoundCount.stringValue = ""
+            self.currentDownloadIndex = 0
+            
             var request = NSURLRequest(URL: url)
             self.wvWebView.mainFrame.loadRequest(request)
-        
         }
     }
     
@@ -64,8 +70,9 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         if columnIdentifier == "title" {
             result = xdSound.title
         }
-        println(columnIdentifier)
-        println(result)
+        if columnIdentifier == "timesize" {
+            result = xdSound.duration
+        }
         return result
     }
     
@@ -77,7 +84,6 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             htmlSource = htmlSource.replace("</article>", withString: "</div>")
             htmlSource = htmlSource.replace("<canvas ", withString: "<div ")
             htmlSource = htmlSource.replace("</canvas>", withString: "</div>")
-            //println(htmlSource)
             // parse html
             var err:NSError?
             self.parser = HTMLParser(html: htmlSource, encoding: NSUTF8StringEncoding, error: &err)
@@ -100,13 +106,46 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                     xdSound.id = node.getAttributeNamed("sound_id")
                     xdSound.title = soundTitle.contents
                     soundList.append(xdSound)
+                    soundDic[xdSound.id] = xdSound
                 }
+                self.labSoundCount.stringValue = String(self.soundList.count)
             }
             tabSoundList.reloadData()
         }
         
     }
+
+    var currentDownloadIndex:Int = 0;
     
+    @IBAction func startDownload(sender: NSButton) {
+        if self.currentDownloadIndex < self.soundList.count {
+            downloading(self.soundList[self.currentDownloadIndex].id)
+        }
+        else {
+            var storyboard = NSStoryboard(name: "Main", bundle: nil)
+            var completeView: NSViewController? = storyboard?.instantiateControllerWithIdentifier("completeView") as? NSViewController
+            self.presentViewControllerAsSheet(completeView!)
+        }
+    }
+    
+    func downloading(soundId:String) {
+        var jsonUrl = Utils.getJsonUrl(soundId)
+        Alamofire.request(.GET, jsonUrl)
+            .responseJSON { (_, _, jsonString, _) in
+                let json = JSON(jsonString!)
+                var soundId = json["id"].stringValue
+                var xdSound = self.soundDic[soundId]
+                xdSound!.url = Utils.urlPrefix + json["play_path"].stringValue
+                var duration = (json["duration"].stringValue as NSString).doubleValue
+                xdSound!.duration = String(Int(round(duration / 60)))
+                println(xdSound?.url)
+                println(xdSound?.duration)
+                self.tabSoundList.reloadData()
+                self.currentDownloadIndex++
+        }
+        
+    }
+
     override var representedObject: AnyObject? {
         didSet {
         // Update the view, if already loaded.

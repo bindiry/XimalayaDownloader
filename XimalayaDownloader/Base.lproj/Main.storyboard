@@ -652,7 +652,7 @@
             <objects>
                 <windowController id="B8D-0N-5wS" sceneMemberID="viewController">
                     <window key="window" title="XimalayaDownloader 1.0" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
-                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
                         <rect key="contentRect" x="196" y="240" width="500" height="330"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
                         <value key="minSize" type="size" width="500" height="330"/>
@@ -694,7 +694,7 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="Dux-eq-vrM" id="2Q2-xi-1jE">
-                                            <rect key="frame" x="0.0" y="0.0" width="458" height="0.0"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="442" height="19"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -726,6 +726,19 @@
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                 </tableColumn>
+                                                <tableColumn identifier="downloadPer" width="64" minWidth="10" maxWidth="3.4028234663852886e+38" id="imJ-Gz-fm1">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="进度">
+                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
+                                                    </tableHeaderCell>
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="TqQ-Fm-ZPD">
+                                                        <font key="font" metaFont="system"/>
+                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                    </textFieldCell>
+                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                </tableColumn>
                                             </tableColumns>
                                         </tableView>
                                     </subviews>
@@ -751,6 +764,9 @@
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" size="13" name="STHeitiSC-Light"/>
                                 </buttonCell>
+                                <connections>
+                                    <action selector="startDownload:" target="85t-WU-i38" id="9er-8Q-udt"/>
+                                </connections>
                             </button>
                             <button verticalHuggingPriority="750" id="lqs-PE-MRg">
                                 <rect key="frame" x="23" y="14" width="92" height="32"/>
@@ -781,9 +797,9 @@
                                 </textFieldCell>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="YMJ-TE-uJ6">
-                                <rect key="frame" x="231" y="259" width="69" height="17"/>
+                                <rect key="frame" x="334" y="259" width="56" height="17"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="当前声音：" id="8ra-I8-JUW">
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="声音数：" id="8ra-I8-JUW">
                                     <font key="font" size="13" name="STHeitiSC-Medium"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -799,7 +815,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="jcr-2t-fdN">
-                                <rect key="frame" x="296" y="259" width="195" height="17"/>
+                                <rect key="frame" x="387" y="259" width="104" height="17"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Label" id="yVi-NS-OZA">
                                     <font key="font" metaFont="system"/>
@@ -819,20 +835,19 @@
                     <connections>
                         <outlet property="albumURL" destination="ah2-Fm-RtE" id="N1P-VS-o1g"/>
                         <outlet property="labAlbumName" destination="dLe-fS-ORd" id="yLk-p3-Tfr"/>
-                        <outlet property="labCurrentSoundName" destination="jcr-2t-fdN" id="aaf-yc-hla"/>
+                        <outlet property="labSoundCount" destination="jcr-2t-fdN" id="7n7-aP-jKg"/>
                         <outlet property="tabSoundList" destination="2Q2-xi-1jE" id="MIA-HJ-evU"/>
-                        <outlet property="wvWebView" destination="xDH-6H-Df4" id="huk-ch-yME"/>
-                        <outlet property="wvWebview" destination="xDH-6H-Df4" id="JU1-V0-xYU"/>
+                        <outlet property="wvWebView" destination="xDH-6H-Df4" id="fPr-1G-8rF"/>
                     </connections>
                 </viewController>
                 <customObject id="hEv-Cr-J4K" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="75" y="701"/>
+            <point key="canvasLocation" x="74.5" y="701"/>
         </scene>
         <!--View Controller-->
         <scene sceneID="D4J-RD-S59">
             <objects>
-                <viewController id="eTy-Wc-4CN" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="completeView" id="eTy-Wc-4CN" sceneMemberID="viewController">
                     <view key="view" id="o64-5V-pou">
                         <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
                         <autoresizingMask key="autoresizingMask"/>
