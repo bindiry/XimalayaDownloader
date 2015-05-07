@@ -9,10 +9,11 @@
 import Foundation
 
 public class XDSound {
-    public var id:String!
-    public var title:String!
+    public var index:Int = 0
+    public var id:String = ""
+    public var title:String = ""
     public var size:String = ""
     public var duration:String = ""
-    public var url:String!
-    public var downloadPer:Int!
+    public var url:String = ""
+    public var downloadPer:Int = 0
 }

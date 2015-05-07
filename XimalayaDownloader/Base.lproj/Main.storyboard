@@ -675,16 +675,13 @@
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <textField verticalHuggingPriority="750" id="ah2-Fm-RtE">
-                                <rect key="frame" x="29" y="284" width="460" height="22"/>
+                                <rect key="frame" x="29" y="284" width="398" height="22"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="输入专辑 URL" drawsBackground="YES" id="J2b-UF-Vqu">
                                     <font key="font" size="13" name="STHeitiSC-Light"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
-                                <connections>
-                                    <action selector="textDidChange:" target="85t-WU-i38" id="tlM-Af-hhp"/>
-                                </connections>
                             </textField>
                             <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="LKh-hL-DLe">
                                 <rect key="frame" x="29" y="51" width="460" height="200"/>
@@ -694,7 +691,7 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="Dux-eq-vrM" id="2Q2-xi-1jE">
-                                            <rect key="frame" x="0.0" y="0.0" width="442" height="19"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="458" height="182"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -713,13 +710,26 @@
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                 </tableColumn>
-                                                <tableColumn identifier="timesize" width="100" minWidth="40" maxWidth="1000" id="xqA-41-aGh">
-                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="时长/大小">
+                                                <tableColumn identifier="duration" width="60" minWidth="40" maxWidth="1000" id="xqA-41-aGh">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="时长">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                     </tableHeaderCell>
                                                     <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="id5-hC-CsR">
+                                                        <font key="font" metaFont="system"/>
+                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                    </textFieldCell>
+                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                </tableColumn>
+                                                <tableColumn identifier="size" width="53" minWidth="10" maxWidth="3.4028234663852886e+38" id="6CN-hW-Lwi">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="大小">
+                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
+                                                    </tableHeaderCell>
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="0zk-s1-Fif">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -830,10 +840,24 @@
                                     <nil key="identifier"/>
                                 </webPreferences>
                             </webView>
+                            <button verticalHuggingPriority="750" id="plB-wI-8KD">
+                                <rect key="frame" x="429" y="277" width="66" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="解析" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="6Jj-xf-fI7">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" size="13" name="STHeitiSC-Light"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="parseUrl:" target="85t-WU-i38" id="gQ9-Yg-QJi"/>
+                                </connections>
+                            </button>
                         </subviews>
                     </view>
                     <connections>
                         <outlet property="albumURL" destination="ah2-Fm-RtE" id="N1P-VS-o1g"/>
+                        <outlet property="btnClear" destination="Erk-Ix-YlM" id="NVL-TM-gXz"/>
+                        <outlet property="btnRemoveSelected" destination="lqs-PE-MRg" id="kix-Zn-iZa"/>
+                        <outlet property="btnStartDownload" destination="DXO-GX-jIH" id="gpK-V0-Ao7"/>
                         <outlet property="labAlbumName" destination="dLe-fS-ORd" id="yLk-p3-Tfr"/>
                         <outlet property="labSoundCount" destination="jcr-2t-fdN" id="7n7-aP-jKg"/>
                         <outlet property="tabSoundList" destination="2Q2-xi-1jE" id="MIA-HJ-evU"/>

@@ -22,6 +22,9 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     @IBOutlet weak var labAlbumName: NSTextField!
     @IBOutlet weak var labSoundCount: NSTextField!
     @IBOutlet weak var tabSoundList: NSTableView!
+    @IBOutlet weak var btnRemoveSelected: NSButton!
+    @IBOutlet weak var btnClear: NSButton!
+    @IBOutlet weak var btnStartDownload: NSButton!
     @IBOutlet weak var wvWebView: WebView!
     
     var parser:HTMLParser?
@@ -29,6 +32,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     var didFinish:Bool = false
     var soundList:[XDSound] = []
     var soundDic = Dictionary<String, XDSound>()
+    var albumDirectoryName:String?
+    var currentDownloadIndex:Int = 0;
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -42,11 +47,10 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         self.tabSoundList.setDelegate(self)
         self.tabSoundList.setDataSource(self)
     }
-
-    @IBAction func textDidChange(sender: NSTextField) {
-        var albumUrlValue = sender.stringValue + ".ajax"
+    
+    @IBAction func parseUrl(sender: NSButton) {
+        var albumUrlValue = self.albumURL.stringValue + ".ajax"
         if var url = NSURL(string: albumUrlValue) {
-            self.didFinish = false
             self.soundList = []
             self.soundDic = [:]
             self.tabSoundList.reloadData()
@@ -70,14 +74,21 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         if columnIdentifier == "title" {
             result = xdSound.title
         }
-        if columnIdentifier == "timesize" {
+        if columnIdentifier == "duration" {
             result = xdSound.duration
+        }
+        if columnIdentifier == "size" {
+            result = xdSound.size
+        }
+        if columnIdentifier == "downloadPer" {
+            result = xdSound.downloadPer == 0 ? "" : "\(xdSound.downloadPer)%"
         }
         return result
     }
     
     override func webView(sender: WebView!, didFinishLoadForFrame frame: WebFrame!) {
         if self.didFinish == false {
+            println("change")
             self.didFinish = true
             var htmlSource:String = self.wvWebView.stringByEvaluatingJavaScriptFromString("document.documentElement.outerHTML")
             htmlSource = htmlSource.replace("<article>", withString: "<div>")
@@ -97,16 +108,30 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 for node in xpath {
                     self.labAlbumName.stringValue = node.contents
                 }
+                self.albumDirectoryName = self.labAlbumName.stringValue
+                // create album directory
+                if let directoryURL = NSFileManager.defaultManager().URLsForDirectory(.DesktopDirectory, inDomains: .UserDomainMask)[0] as? NSURL {
+                    var folder = directoryURL.URLByAppendingPathComponent(self.albumDirectoryName!, isDirectory: true)
+                    let exist = NSFileManager.defaultManager().fileExistsAtPath(folder.path!)
+                    var error:NSErrorPointer = nil
+                    if !exist {
+                        let createSuccess = NSFileManager.defaultManager().createDirectoryAtURL(folder, withIntermediateDirectories: true, attributes: nil, error: error)
+                    }
+                }
+                
             }
             // get sound list
             if let soundPath:[HTMLNode] = self.parserBodyNode?.xpath("//div[@class='album_soundlist ']//li") {
+                var soundCounter = 0
                 for node in soundPath {
                     var soundTitle:HTMLNode = node.findChildTagAttr("a", attrName: "class", attrValue: "title")!
                     var xdSound = XDSound()
                     xdSound.id = node.getAttributeNamed("sound_id")
                     xdSound.title = soundTitle.contents
+                    xdSound.index = soundCounter
                     soundList.append(xdSound)
                     soundDic[xdSound.id] = xdSound
+                    soundCounter++
                 }
                 self.labSoundCount.stringValue = String(self.soundList.count)
             }
@@ -114,14 +139,25 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         }
         
     }
-
-    var currentDownloadIndex:Int = 0;
     
     @IBAction func startDownload(sender: NSButton) {
+        download()
+        
+        self.btnRemoveSelected.enabled = false
+        self.btnClear.enabled = false
+        self.btnStartDownload.enabled = false
+    }
+    
+    func download() {
         if self.currentDownloadIndex < self.soundList.count {
             downloading(self.soundList[self.currentDownloadIndex].id)
         }
         else {
+            // download complete
+            self.btnRemoveSelected.enabled = true
+            self.btnClear.enabled = true
+            self.btnStartDownload.enabled = true
+            
             var storyboard = NSStoryboard(name: "Main", bundle: nil)
             var completeView: NSViewController? = storyboard?.instantiateControllerWithIdentifier("completeView") as? NSViewController
             self.presentViewControllerAsSheet(completeView!)
@@ -137,13 +173,47 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 var xdSound = self.soundDic[soundId]
                 xdSound!.url = Utils.urlPrefix + json["play_path"].stringValue
                 var duration = (json["duration"].stringValue as NSString).doubleValue
-                xdSound!.duration = String(Int(round(duration / 60)))
-                println(xdSound?.url)
-                println(xdSound?.duration)
-                self.tabSoundList.reloadData()
-                self.currentDownloadIndex++
+                xdSound!.duration = NSString(format: "%.2f分", (duration / 60)) as String
+                self.tabSoundList.reloadDataForRowIndexes(NSIndexSet(index: xdSound!.index), columnIndexes: NSIndexSet(index: 1))
+                // start download mp3
+                Alamofire.download(.GET, xdSound!.url, {(temporaryURL, response) in
+                    if let directoryURL = NSFileManager.defaultManager().URLsForDirectory(.DesktopDirectory, inDomains: .UserDomainMask)[0] as? NSURL {
+                        var albumPath:NSURL = directoryURL.URLByAppendingPathComponent(self.albumDirectoryName!, isDirectory: true)
+                        return albumPath.URLByAppendingPathComponent("\(xdSound!.title).mp3")
+                    }
+                    return temporaryURL
+                })
+                    .progress { (bytesRead, totalBytesRead, totalBytesExpectedToRead) in
+                        xdSound!.size = self.getSizeString(totalBytesExpectedToRead)
+                        xdSound!.downloadPer = self.getDownloadPer(totalBytesRead, total: totalBytesExpectedToRead)
+                        //self.tabSoundList.reloadDataForRowIndexes(NSIndexSet(index: xdSound!.index), columnIndexes: NSIndexSet(indexesInRange: NSMakeRange(2, 3)))
+                        self.tabSoundList.reloadData()
+                        println(xdSound!.downloadPer)
+                    }
+                    .response { (request, response, _, error) in
+                        //println(response)
+                        self.currentDownloadIndex++
+                        self.download()
+                }
+                
         }
         
+    }
+    
+    func getDownloadPer(current:Int64, total:Int64) -> Int {
+        return Int(ceil(Double(current) / Double(total) * 100))
+    }
+    
+    func getSizeString(total:Int64) -> String {
+        var result = ""
+        var totalSize = Double(total)
+        if total > 1024 * 1024 {
+            result = String(Int(round(totalSize / 1024 / 1024))) + "MB"
+        }
+        else {
+            result = String(Int(round(totalSize / 1024))) + "KB"
+        }
+        return result
     }
 
     override var representedObject: AnyObject? {
