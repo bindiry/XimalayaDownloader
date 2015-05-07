@@ -19,6 +19,7 @@ extension String {
 class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate {
 
     @IBOutlet weak var albumURL: NSTextField!
+    @IBOutlet weak var btnParse: NSButton!
     @IBOutlet weak var labAlbumName: NSTextField!
     @IBOutlet weak var labSoundCount: NSTextField!
     @IBOutlet weak var tabSoundList: NSTableView!
@@ -29,7 +30,6 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     
     var parser:HTMLParser?
     var parserBodyNode:HTMLNode?
-    var didFinish:Bool = false
     var soundList:[XDSound] = []
     var soundDic = Dictionary<String, XDSound>()
     var albumDirectoryName:String?
@@ -48,15 +48,19 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         self.tabSoundList.setDataSource(self)
     }
     
+    func reset() {
+        self.soundList = []
+        self.soundDic = [:]
+        self.tabSoundList.reloadData()
+        self.labAlbumName.stringValue = ""
+        self.labSoundCount.stringValue = ""
+        self.currentDownloadIndex = 0
+    }
+    
     @IBAction func parseUrl(sender: NSButton) {
         var albumUrlValue = self.albumURL.stringValue + ".ajax"
         if var url = NSURL(string: albumUrlValue) {
-            self.soundList = []
-            self.soundDic = [:]
-            self.tabSoundList.reloadData()
-            self.labAlbumName.stringValue = ""
-            self.labSoundCount.stringValue = ""
-            self.currentDownloadIndex = 0
+            self.reset()
             
             var request = NSURLRequest(URL: url)
             self.wvWebView.mainFrame.loadRequest(request)
@@ -86,63 +90,75 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         return result
     }
     
+    func tableView(tableView: NSTableView, shouldEditTableColumn tableColumn: NSTableColumn?, row: Int) -> Bool {
+        return false
+    }
+    
     override func webView(sender: WebView!, didFinishLoadForFrame frame: WebFrame!) {
-        if self.didFinish == false {
-            println("change")
-            self.didFinish = true
-            var htmlSource:String = self.wvWebView.stringByEvaluatingJavaScriptFromString("document.documentElement.outerHTML")
-            htmlSource = htmlSource.replace("<article>", withString: "<div>")
-            htmlSource = htmlSource.replace("</article>", withString: "</div>")
-            htmlSource = htmlSource.replace("<canvas ", withString: "<div ")
-            htmlSource = htmlSource.replace("</canvas>", withString: "</div>")
-            // parse html
-            var err:NSError?
-            self.parser = HTMLParser(html: htmlSource, encoding: NSUTF8StringEncoding, error: &err)
-            if err != nil {
-                println(err)
-                exit(1)
-            }
-            self.parserBodyNode = self.parser?.body
-            // set album title
-            if let xpath:[HTMLNode] = self.parserBodyNode?.xpath("//div[@class='detailContent_title']/h1") {
-                for node in xpath {
-                    self.labAlbumName.stringValue = node.contents
-                }
-                self.albumDirectoryName = self.labAlbumName.stringValue
-                // create album directory
-                if let directoryURL = NSFileManager.defaultManager().URLsForDirectory(.DesktopDirectory, inDomains: .UserDomainMask)[0] as? NSURL {
-                    var folder = directoryURL.URLByAppendingPathComponent(self.albumDirectoryName!, isDirectory: true)
-                    let exist = NSFileManager.defaultManager().fileExistsAtPath(folder.path!)
-                    var error:NSErrorPointer = nil
-                    if !exist {
-                        let createSuccess = NSFileManager.defaultManager().createDirectoryAtURL(folder, withIntermediateDirectories: true, attributes: nil, error: error)
-                    }
-                }
-                
-            }
-            // get sound list
-            if let soundPath:[HTMLNode] = self.parserBodyNode?.xpath("//div[@class='album_soundlist ']//li") {
-                var soundCounter = 0
-                for node in soundPath {
-                    var soundTitle:HTMLNode = node.findChildTagAttr("a", attrName: "class", attrValue: "title")!
-                    var xdSound = XDSound()
-                    xdSound.id = node.getAttributeNamed("sound_id")
-                    xdSound.title = soundTitle.contents
-                    xdSound.index = soundCounter
-                    soundList.append(xdSound)
-                    soundDic[xdSound.id] = xdSound
-                    soundCounter++
-                }
-                self.labSoundCount.stringValue = String(self.soundList.count)
-            }
-            tabSoundList.reloadData()
+        var htmlSource:String = self.wvWebView.stringByEvaluatingJavaScriptFromString("document.documentElement.outerHTML")
+        htmlSource = htmlSource.replace("<article>", withString: "<div>")
+        htmlSource = htmlSource.replace("</article>", withString: "</div>")
+        htmlSource = htmlSource.replace("<canvas ", withString: "<div ")
+        htmlSource = htmlSource.replace("</canvas>", withString: "</div>")
+        // parse html
+        var err:NSError?
+        self.parser = HTMLParser(html: htmlSource, encoding: NSUTF8StringEncoding, error: &err)
+        if err != nil {
+            println(err)
+            exit(1)
         }
-        
+        self.parserBodyNode = self.parser?.body
+        // set album title
+        if let xpath:[HTMLNode] = self.parserBodyNode?.xpath("//div[@class='detailContent_title']/h1") {
+            for node in xpath {
+                self.labAlbumName.stringValue = node.contents
+            }
+            self.albumDirectoryName = self.labAlbumName.stringValue
+            // create album directory
+            if let directoryURL = NSFileManager.defaultManager().URLsForDirectory(.DesktopDirectory, inDomains: .UserDomainMask)[0] as? NSURL {
+                var folder = directoryURL.URLByAppendingPathComponent(self.albumDirectoryName!, isDirectory: true)
+                let exist = NSFileManager.defaultManager().fileExistsAtPath(folder.path!)
+                var error:NSErrorPointer = nil
+                if !exist {
+                    let createSuccess = NSFileManager.defaultManager().createDirectoryAtURL(folder, withIntermediateDirectories: true, attributes: nil, error: error)
+                }
+            }
+            
+        }
+        // get sound list
+        if let soundPath:[HTMLNode] = self.parserBodyNode?.xpath("//div[@class='album_soundlist ']//li") {
+            var soundCounter = 0
+            for node in soundPath {
+                var soundTitle:HTMLNode = node.findChildTagAttr("a", attrName: "class", attrValue: "title")!
+                var xdSound = XDSound()
+                xdSound.id = node.getAttributeNamed("sound_id")
+                xdSound.title = soundTitle.contents
+                xdSound.index = soundCounter
+                soundList.append(xdSound)
+                soundDic[xdSound.id] = xdSound
+                soundCounter++
+            }
+            self.labSoundCount.stringValue = String(self.soundList.count)
+        }
+        self.reloadDataInBackgroundThreads()
+    }
+    
+    @IBAction func removeSelected(sender: NSButton) {
+        var xdSound = self.soundList.removeAtIndex(self.tabSoundList.selectedRow)
+        self.soundDic.removeValueForKey(xdSound.id)
+        self.reloadDataInBackgroundThreads()
+    }
+    
+    @IBAction func removeAll(sender: NSButton) {
+        self.reset()
+        self.reloadDataInBackgroundThreads()
     }
     
     @IBAction func startDownload(sender: NSButton) {
         download()
         
+        self.albumURL.enabled = false
+        self.btnParse.enabled = false
         self.btnRemoveSelected.enabled = false
         self.btnClear.enabled = false
         self.btnStartDownload.enabled = false
@@ -154,6 +170,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         }
         else {
             // download complete
+            self.albumURL.enabled = true
+            self.btnParse.enabled = true
             self.btnRemoveSelected.enabled = true
             self.btnClear.enabled = true
             self.btnStartDownload.enabled = true
@@ -174,7 +192,6 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 xdSound!.url = Utils.urlPrefix + json["play_path"].stringValue
                 var duration = (json["duration"].stringValue as NSString).doubleValue
                 xdSound!.duration = NSString(format: "%.2f分", (duration / 60)) as String
-                self.tabSoundList.reloadDataForRowIndexes(NSIndexSet(index: xdSound!.index), columnIndexes: NSIndexSet(index: 1))
                 // start download mp3
                 Alamofire.download(.GET, xdSound!.url, {(temporaryURL, response) in
                     if let directoryURL = NSFileManager.defaultManager().URLsForDirectory(.DesktopDirectory, inDomains: .UserDomainMask)[0] as? NSURL {
@@ -186,18 +203,24 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                     .progress { (bytesRead, totalBytesRead, totalBytesExpectedToRead) in
                         xdSound!.size = self.getSizeString(totalBytesExpectedToRead)
                         xdSound!.downloadPer = self.getDownloadPer(totalBytesRead, total: totalBytesExpectedToRead)
-                        //self.tabSoundList.reloadDataForRowIndexes(NSIndexSet(index: xdSound!.index), columnIndexes: NSIndexSet(indexesInRange: NSMakeRange(2, 3)))
-                        self.tabSoundList.reloadData()
-                        println(xdSound!.downloadPer)
+                        self.reloadDataInBackgroundThreads()
                     }
                     .response { (request, response, _, error) in
-                        //println(response)
                         self.currentDownloadIndex++
                         self.download()
                 }
-                
         }
-        
+    }
+    
+    func reloadDataInBackgroundThreads() {
+        // reload data in background threads
+        // https://thatthinginswift.com/background-threads/
+        let priority = DISPATCH_QUEUE_PRIORITY_DEFAULT
+        dispatch_async(dispatch_get_global_queue(priority, 0)) {
+            dispatch_async(dispatch_get_main_queue()) {
+                self.tabSoundList.reloadData()
+            }
+        }
     }
     
     func getDownloadPer(current:Int64, total:Int64) -> Int {

@@ -690,7 +690,7 @@
                                     <rect key="frame" x="1" y="17" width="458" height="182"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="Dux-eq-vrM" id="2Q2-xi-1jE">
+                                        <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnResizing="NO" autosaveColumns="NO" headerView="Dux-eq-vrM" id="2Q2-xi-1jE">
                                             <rect key="frame" x="0.0" y="0.0" width="458" height="182"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
@@ -785,16 +785,8 @@
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" size="13" name="STHeitiSC-Light"/>
                                 </buttonCell>
-                            </button>
-                            <button verticalHuggingPriority="750" id="Erk-Ix-YlM">
-                                <rect key="frame" x="115" y="14" width="92" height="32"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <buttonCell key="cell" type="push" title="清空列表" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GKa-iS-Ra7">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" size="13" name="STHeitiSC-Light"/>
-                                </buttonCell>
                                 <connections>
-                                    <segue destination="eTy-Wc-4CN" kind="sheet" id="YaK-3d-KVs"/>
+                                    <action selector="removeSelected:" target="85t-WU-i38" id="mqs-k8-R5l"/>
                                 </connections>
                             </button>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Oug-mG-mMs">
@@ -851,11 +843,22 @@
                                     <action selector="parseUrl:" target="85t-WU-i38" id="gQ9-Yg-QJi"/>
                                 </connections>
                             </button>
+                            <button verticalHuggingPriority="750" id="Erk-Ix-YlM">
+                                <rect key="frame" x="115" y="14" width="66" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="清空" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GKa-iS-Ra7">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" size="13" name="STHeitiSC-Light"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="removeAll:" target="85t-WU-i38" id="qTb-yh-9kE"/>
+                                </connections>
+                            </button>
                         </subviews>
                     </view>
                     <connections>
                         <outlet property="albumURL" destination="ah2-Fm-RtE" id="N1P-VS-o1g"/>
-                        <outlet property="btnClear" destination="Erk-Ix-YlM" id="NVL-TM-gXz"/>
+                        <outlet property="btnParse" destination="plB-wI-8KD" id="vAR-8I-thj"/>
                         <outlet property="btnRemoveSelected" destination="lqs-PE-MRg" id="kix-Zn-iZa"/>
                         <outlet property="btnStartDownload" destination="DXO-GX-jIH" id="gpK-V0-Ao7"/>
                         <outlet property="labAlbumName" destination="dLe-fS-ORd" id="yLk-p3-Tfr"/>
