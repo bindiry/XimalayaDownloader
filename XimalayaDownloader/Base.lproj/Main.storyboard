@@ -789,6 +789,17 @@
                                     <action selector="removeSelected:" target="85t-WU-i38" id="mqs-k8-R5l"/>
                                 </connections>
                             </button>
+                            <button verticalHuggingPriority="750" id="Erk-Ix-YlM">
+                                <rect key="frame" x="115" y="14" width="66" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="清空" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GKa-iS-Ra7">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" size="13" name="STHeitiSC-Light"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="removeAll:" target="85t-WU-i38" id="qTb-yh-9kE"/>
+                                </connections>
+                            </button>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Oug-mG-mMs">
                                 <rect key="frame" x="29" y="259" width="56" height="17"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -799,9 +810,9 @@
                                 </textFieldCell>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="YMJ-TE-uJ6">
-                                <rect key="frame" x="334" y="259" width="56" height="17"/>
+                                <rect key="frame" x="307" y="259" width="88" height="17"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="声音数：" id="8ra-I8-JUW">
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="完成数/总数：" id="8ra-I8-JUW">
                                     <font key="font" size="13" name="STHeitiSC-Medium"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -811,15 +822,6 @@
                                 <rect key="frame" x="79" y="258" width="148" height="17"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Label" id="tco-Gt-cxK">
-                                    <font key="font" metaFont="system"/>
-                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="jcr-2t-fdN">
-                                <rect key="frame" x="387" y="259" width="104" height="17"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Label" id="yVi-NS-OZA">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -843,21 +845,20 @@
                                     <action selector="parseUrl:" target="85t-WU-i38" id="gQ9-Yg-QJi"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" id="Erk-Ix-YlM">
-                                <rect key="frame" x="115" y="14" width="66" height="32"/>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="jcr-2t-fdN">
+                                <rect key="frame" x="387" y="258" width="104" height="17"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <buttonCell key="cell" type="push" title="清空" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GKa-iS-Ra7">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" size="13" name="STHeitiSC-Light"/>
-                                </buttonCell>
-                                <connections>
-                                    <action selector="removeAll:" target="85t-WU-i38" id="qTb-yh-9kE"/>
-                                </connections>
-                            </button>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Label" id="yVi-NS-OZA">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
                         </subviews>
                     </view>
                     <connections>
                         <outlet property="albumURL" destination="ah2-Fm-RtE" id="N1P-VS-o1g"/>
+                        <outlet property="btnClear" destination="Erk-Ix-YlM" id="cA5-D3-lIr"/>
                         <outlet property="btnParse" destination="plB-wI-8KD" id="vAR-8I-thj"/>
                         <outlet property="btnRemoveSelected" destination="lqs-PE-MRg" id="kix-Zn-iZa"/>
                         <outlet property="btnStartDownload" destination="DXO-GX-jIH" id="gpK-V0-Ao7"/>

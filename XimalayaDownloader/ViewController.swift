@@ -34,6 +34,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     var soundDic = Dictionary<String, XDSound>()
     var albumDirectoryName:String?
     var currentDownloadIndex:Int = 0;
+    var downloadedCount:Int = 0
+    var didParseFinish:Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,6 +57,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         self.labAlbumName.stringValue = ""
         self.labSoundCount.stringValue = ""
         self.currentDownloadIndex = 0
+        self.downloadedCount = 0
+        self.didParseFinish = false
     }
     
     @IBAction func parseUrl(sender: NSButton) {
@@ -95,6 +99,11 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     }
     
     override func webView(sender: WebView!, didFinishLoadForFrame frame: WebFrame!) {
+        if self.didParseFinish {
+            return
+        }
+        self.didParseFinish = true
+        
         var htmlSource:String = self.wvWebView.stringByEvaluatingJavaScriptFromString("document.documentElement.outerHTML")
         htmlSource = htmlSource.replace("<article>", withString: "<div>")
         htmlSource = htmlSource.replace("</article>", withString: "</div>")
@@ -138,14 +147,19 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 soundDic[xdSound.id] = xdSound
                 soundCounter++
             }
-            self.labSoundCount.stringValue = String(self.soundList.count)
+            self.updateSoundCount()
         }
         self.reloadDataInBackgroundThreads()
+    }
+    
+    func updateSoundCount() {
+        self.labSoundCount.stringValue = "\(self.downloadedCount)/\(self.soundList.count)"
     }
     
     @IBAction func removeSelected(sender: NSButton) {
         var xdSound = self.soundList.removeAtIndex(self.tabSoundList.selectedRow)
         self.soundDic.removeValueForKey(xdSound.id)
+        self.updateSoundCount()
         self.reloadDataInBackgroundThreads()
     }
     
@@ -206,6 +220,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                         self.reloadDataInBackgroundThreads()
                     }
                     .response { (request, response, _, error) in
+                        self.downloadedCount++
+                        self.updateSoundCount()
                         self.currentDownloadIndex++
                         self.download()
                 }
