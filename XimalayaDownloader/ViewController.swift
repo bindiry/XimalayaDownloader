@@ -36,6 +36,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     var currentDownloadIndex:Int = 0;
     var downloadedCount:Int = 0
     var didParseFinish:Bool = false
+    var parseFinshCounter = 0
+    let parseFinishCount = 2
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -59,11 +61,19 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         self.currentDownloadIndex = 0
         self.downloadedCount = 0
         self.didParseFinish = false
+        self.parseFinshCounter = 0;
     }
     
     @IBAction func parseUrl(sender: NSButton) {
-        var albumUrlValue = self.albumURL.stringValue + ".ajax"
-        if var url = NSURL(string: albumUrlValue) {
+        var albumUrlValue:String?
+        if find(self.albumURL.stringValue, "?") == nil {
+            albumUrlValue = self.albumURL.stringValue + ".ajax"
+        }
+        else {
+            albumUrlValue = self.albumURL.stringValue.replace("?", withString: ".ajax?")
+        }
+        
+        if var url = NSURL(string: albumUrlValue!) {
             self.reset()
             
             var request = NSURLRequest(URL: url)
@@ -99,57 +109,63 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     }
     
     override func webView(sender: WebView!, didFinishLoadForFrame frame: WebFrame!) {
-        if self.didParseFinish {
-            return
+        if self.parseFinshCounter < self.parseFinishCount {
+            self.parseFinshCounter++
         }
-        self.didParseFinish = true
-        
-        var htmlSource:String = self.wvWebView.stringByEvaluatingJavaScriptFromString("document.documentElement.outerHTML")
-        htmlSource = htmlSource.replace("<article>", withString: "<div>")
-        htmlSource = htmlSource.replace("</article>", withString: "</div>")
-        htmlSource = htmlSource.replace("<canvas ", withString: "<div ")
-        htmlSource = htmlSource.replace("</canvas>", withString: "</div>")
-        // parse html
-        var err:NSError?
-        self.parser = HTMLParser(html: htmlSource, encoding: NSUTF8StringEncoding, error: &err)
-        if err != nil {
-            println(err)
-            exit(1)
-        }
-        self.parserBodyNode = self.parser?.body
-        // set album title
-        if let xpath:[HTMLNode] = self.parserBodyNode?.xpath("//div[@class='detailContent_title']/h1") {
-            for node in xpath {
-                self.labAlbumName.stringValue = node.contents
+        else {
+            if self.didParseFinish == true {
+                return
             }
-            self.albumDirectoryName = self.labAlbumName.stringValue
-            // create album directory
-            if let directoryURL = NSFileManager.defaultManager().URLsForDirectory(.DesktopDirectory, inDomains: .UserDomainMask)[0] as? NSURL {
-                var folder = directoryURL.URLByAppendingPathComponent(self.albumDirectoryName!, isDirectory: true)
-                let exist = NSFileManager.defaultManager().fileExistsAtPath(folder.path!)
-                var error:NSErrorPointer = nil
-                if !exist {
-                    let createSuccess = NSFileManager.defaultManager().createDirectoryAtURL(folder, withIntermediateDirectories: true, attributes: nil, error: error)
+            didParseFinish = true
+            var htmlSource:String = self.wvWebView.stringByEvaluatingJavaScriptFromString("document.documentElement.outerHTML")
+            htmlSource = htmlSource.replace("<article>", withString: "<div>")
+            htmlSource = htmlSource.replace("</article>", withString: "</div>")
+            htmlSource = htmlSource.replace("<canvas ", withString: "<div ")
+            htmlSource = htmlSource.replace("</canvas>", withString: "</div>")
+            // parse html
+            var err:NSError?
+            self.parser = HTMLParser(html: htmlSource, encoding: NSUTF8StringEncoding, error: &err)
+            if err != nil {
+                println(err)
+                exit(1)
+            }
+            self.parserBodyNode = self.parser?.body
+            // set album title
+            if let xpath:[HTMLNode] = self.parserBodyNode?.xpath("//div[@class='detailContent_title']/h1") {
+                for node in xpath {
+                    self.labAlbumName.stringValue = node.contents
                 }
+                self.albumDirectoryName = self.labAlbumName.stringValue
+                // create album directory
+                if let directoryURL = NSFileManager.defaultManager().URLsForDirectory(.DesktopDirectory, inDomains: .UserDomainMask)[0] as? NSURL {
+                    var folder = directoryURL.URLByAppendingPathComponent(self.albumDirectoryName!, isDirectory: true)
+                    let exist = NSFileManager.defaultManager().fileExistsAtPath(folder.path!)
+                    var error:NSErrorPointer = nil
+                    if !exist {
+                        let createSuccess = NSFileManager.defaultManager().createDirectoryAtURL(folder, withIntermediateDirectories: true, attributes: nil, error: error)
+                    }
+                }
+                
             }
-            
-        }
-        // get sound list
-        if let soundPath:[HTMLNode] = self.parserBodyNode?.xpath("//div[@class='album_soundlist ']//li") {
-            var soundCounter = 0
-            for node in soundPath {
-                var soundTitle:HTMLNode = node.findChildTagAttr("a", attrName: "class", attrValue: "title")!
-                var xdSound = XDSound()
-                xdSound.id = node.getAttributeNamed("sound_id")
-                xdSound.title = soundTitle.contents
-                xdSound.index = soundCounter
-                soundList.append(xdSound)
-                soundDic[xdSound.id] = xdSound
-                soundCounter++
+            // get sound list
+            if let soundPath:[HTMLNode] = self.parserBodyNode?.xpath("//div[@class='album_soundlist ']//li") {
+                var soundCounter = 0
+                for node in soundPath {
+                    var soundTitle:HTMLNode = node.findChildTagAttr("a", attrName: "class", attrValue: "title")!
+                    var xdSound = XDSound()
+                    xdSound.id = node.getAttributeNamed("sound_id")
+                    xdSound.title = soundTitle.contents
+                    xdSound.index = soundCounter
+                    soundList.append(xdSound)
+                    soundDic[xdSound.id] = xdSound
+                    soundCounter++
+                }
+                self.updateSoundCount()
             }
-            self.updateSoundCount()
+            self.reloadDataInBackgroundThreads()
         }
-        self.reloadDataInBackgroundThreads()
+        
+        
     }
     
     func updateSoundCount() {

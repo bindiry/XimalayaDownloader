@@ -691,7 +691,7 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnResizing="NO" autosaveColumns="NO" headerView="Dux-eq-vrM" id="2Q2-xi-1jE">
-                                            <rect key="frame" x="0.0" y="0.0" width="458" height="182"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="458" height="19"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
